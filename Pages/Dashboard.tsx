@@ -4,9 +4,8 @@ import { Card, Col, Layout, Menu, Progress } from "antd";
 
 import "../StylePages/Home.css";
 import Sider from "antd/es/layout/Sider";
-import { HomeOutlined, BellOutlined } from "@ant-design/icons";
+import { BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
-import "../StylePages/Home.css";
 
 const Home: React.FC = () => {
   return (
@@ -35,9 +34,30 @@ const Home: React.FC = () => {
             >
               Thiết bị
             </Menu.Item>
-            <Menu.Item className="menu-item">Dịch vụ</Menu.Item>
-            <Menu.Item className="menu-item">Cấp số</Menu.Item>
-            <Menu.Item className="menu-item">Báo cáo</Menu.Item>
+            <Menu.Item
+              className="menu-item"
+              onClick={() => {
+                window.location.href = "/dichvu";
+              }}
+            >
+              Dịch vụ
+            </Menu.Item>
+            <Menu.Item
+              className="menu-item"
+              onClick={() => {
+                window.location.href = "/capso";
+              }}
+            >
+              Cấp số
+            </Menu.Item>
+            <Menu.Item
+              className="menu-item"
+              onClick={() => {
+                window.location.href = "/baocao";
+              }}
+            >
+              Báo cáo
+            </Menu.Item>
             <Menu.Item className="menu-item">Cài đặt hệ thống</Menu.Item>
             <Menu.Item className="menu-item">Đăng xuất</Menu.Item>
           </Menu>
