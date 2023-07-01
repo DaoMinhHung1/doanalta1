@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Card, Col, Form, Layout, Menu, Row } from "antd";
 import "../StylePages/Home.css";
 import Sider from "antd/es/layout/Sider";
-import { HomeOutlined, BellOutlined, CameraOutlined } from "@ant-design/icons";
+import { BellOutlined, CameraOutlined } from "@ant-design/icons";
 const { Content, Header } = Layout;
 
 interface UserData {
@@ -45,9 +45,30 @@ const Home: React.FC = () => {
           >
             Thiết bị
           </Menu.Item>
-          <Menu.Item className="menu-item">Dịch vụ</Menu.Item>
-          <Menu.Item className="menu-item">Cấp số</Menu.Item>
-          <Menu.Item className="menu-item">Báo cáo</Menu.Item>
+          <Menu.Item
+            className="menu-item"
+            onClick={() => {
+              window.location.href = "/dichvu";
+            }}
+          >
+            Dịch vụ
+          </Menu.Item>
+          <Menu.Item
+            className="menu-item"
+            onClick={() => {
+              window.location.href = "/capso";
+            }}
+          >
+            Cấp số
+          </Menu.Item>
+          <Menu.Item
+            className="menu-item"
+            onClick={() => {
+              window.location.href = "/baocao";
+            }}
+          >
+            Báo cáo
+          </Menu.Item>
           <Menu.Item className="menu-item">Cài đặt hệ thống</Menu.Item>
           <Menu.Item className="menu-item">Đăng xuất</Menu.Item>
         </Menu>

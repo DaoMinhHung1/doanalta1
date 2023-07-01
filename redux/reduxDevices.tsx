@@ -1,7 +1,7 @@
 // devicesSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getDatabase, onValue, ref } from "firebase/database";
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+
 
 export interface DeviceData {
   matb: string;

@@ -1,85 +1,113 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-import { Col, Form, Input, Layout, Menu, Row, Table } from "antd";
+import { Button, Col, Form, Input, Layout, Menu, Row, Table } from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { HomeOutlined, BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
+import { getDatabase, onValue, ref } from "firebase/database";
+import { useHistory } from "react-router-dom";
 
+interface OrderNumbers {
+  STT: string;
+  namekh: string;
+  namedv: string;
+  startdate: string;
+  enddate: string;
+  provide: string;
+  id: string;
+}
 const Quanlycapso: React.FC = () => {
-  interface DataType {
-    idtb: React.Key;
-    nametb: "Mike";
-    addresstb: 32;
-    hoatdongtb: "t";
-    ketnoitb: "t";
-    dichvutb: "t";
-    chitiet: "chitiet";
-    capnhat: "capnhat";
-  }
+  //Xem chi tiết
+  const history = useHistory();
+
+  const handleViewDetails = (orderID: string) => {
+    const selectedOrder = order.find((orders) => orders.id === orderID);
+    if (selectedOrder) {
+      console.log("Selected order:", selectedOrder);
+      history.push(`/chitietcs/${orderID}`, { orders: selectedOrder });
+    } else {
+      console.log("Không có dữ liệu dịch vụ");
+    }
+  };
   // Table
   const columns = [
     {
-      title: "Mã thiết bị",
-      dataIndex: "matb",
-      key: "matb",
-      render: () => "TB01",
+      title: "STT",
+      dataIndex: "STT",
+      key: "STT",
     },
     {
-      title: "Tên thiết bị",
-      dataIndex: "nametb",
-      key: "nametb",
+      title: "Tên khách hàng",
+      dataIndex: "namekh",
+      key: "namekh",
+      width: 200,
+    },
+    {
+      title: "Tên dịch vụ",
+      dataIndex: "namedv",
+      key: "namedv",
+      width: 200,
+    },
+    {
+      title: "Thời gian cấp",
+      dataIndex: "startdate",
+      key: "startdate",
+      width: 120,
+    },
+    {
+      title: "Hạn sử dụng",
+      dataIndex: "enddate",
+      key: "enddate",
+      width: 120,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "provide",
+      key: "provide",
       width: 150,
     },
     {
-      title: "Địa chỉ Ip",
-      dataIndex: "addresstb",
-      key: "addresstb",
-      width: 150,
-    },
-    {
-      title: "Trạng thái hoạt động",
-      dataIndex: "hoatdongtb",
-      key: "hoatdongtb",
-      width: 150,
-    },
-    {
-      title: "Trạng thái kết nối",
-      dataIndex: "ketnoitb",
-      key: "ketnoitb",
-      width: 150,
-    },
-    {
-      title: "Dịch vụ sử dụng",
-      dataIndex: "dichvutb",
-      key: "dichvutb",
-      width: 150,
+      title: "Nguồn cấp",
+      dataIndex: "provide",
+      key: "provide",
+      width: 200,
     },
     {
       title: "",
-      dataIndex: "chitiet",
-      key: "chitiet",
-    },
-    {
-      title: "",
-      dataIndex: "capnhat",
-      key: "capnhat",
+      dataIndex: "chitietAction",
+      key: "chitietAction",
+      render: (_text, record) => (
+        <>
+          <Button onClick={() => handleViewDetails(record.id)}>Chi tiết</Button>
+        </>
+      ),
     },
   ];
 
-  const data: DataType[] = [];
-  for (let i = 0; i < 5; i++) {
-    data.push({
-      idtb: i,
-      nametb: "Mike",
-      addresstb: 32,
-      hoatdongtb: "t",
-      ketnoitb: "t",
-      dichvutb: "t",
-      chitiet: "chitiet",
-      capnhat: "capnhat",
-    });
-  }
+  const [order, setOrder] = useState<OrderNumbers[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const db = getDatabase();
+        const orderRef = ref(db, "ordernumbers");
+
+        onValue(orderRef, (snapshot) => {
+          const data: OrderNumbers[] = [];
+          snapshot.forEach((childSnapshot) => {
+            const order = childSnapshot.val() as OrderNumbers;
+            data.push(order);
+          });
+          setOrder(data);
+        });
+      } catch (error) {
+        console.error("Error fetching service data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -200,14 +228,21 @@ const Quanlycapso: React.FC = () => {
                 <Col span={22}>
                   <div>
                     <div style={{ marginBottom: 16 }}></div>
-                    <Table columns={columns} dataSource={data} />
+                    <Table
+                      columns={columns}
+                      dataSource={order}
+                      pagination={{
+                        pageSize: 5,
+                        pageSizeOptions: ["5", "10", "15"],
+                      }}
+                    />
                   </div>
                 </Col>
                 <Col className="hang-table" span={2}>
                   <HomeOutlined
                     className="icon-thietbi"
                     onClick={() => {
-                      window.location.href = "/themdichvu";
+                      window.location.href = "/capsomoi";
                     }}
                   />
                 </Col>

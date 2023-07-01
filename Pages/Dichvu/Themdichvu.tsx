@@ -10,18 +10,75 @@ import {
   Layout,
   Menu,
   Row,
+  message,
 } from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
+import { getDatabase, push, ref, set } from "firebase/database";
 
-
+interface Services {
+  madv: string;
+  namedv: string;
+  dessdv: string;
+  hoatdongdv: string;
+  id: string;
+}
 const Themdichvu: React.FC = () => {
+  const [serviceData, setServiceData] = useState<Services>({
+    madv: "",
+    namedv: "",
+    dessdv: "",
+    hoatdongdv: "",
+    id: "",
+  });
+
   const [checked, setChecked] = useState<number | null>(null);
 
   const handleCheckboxChange = (index: number) => {
     setChecked(index);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setServiceData((prevState) => ({ ...prevState, [name]: value }));
+  };
+  const handleInputAreaChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target;
+    setServiceData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleAddService = () => {
+    const database = getDatabase();
+    const servicesRef = ref(database, "services");
+
+    const newServiceRef = push(servicesRef);
+    const newServiceKey = newServiceRef.key;
+
+    // // Gán UUID cho dữ liệu thiết bị
+    // const deviceWithUUID = { ...deviceData, uuid: newUUID };
+
+    const newServiceeData = {
+      id: newServiceKey,
+      madv: serviceData.madv,
+      namedv: serviceData.namedv,
+      dessdv: serviceData.dessdv,
+      hoatdongdv: serviceData.hoatdongdv,
+    };
+
+    set(newServiceRef, newServiceeData)
+      .then(() => {
+        message.success("Thêm dịch vụ thành công!");
+        // Cập nhật UI hoặc chuyển hướng đến trang khác sau khi thêm thiết bị
+      })
+      .catch((error) => {
+        console.error("Lỗi khi thêm thiết bị:", error);
+        // Xử lý lỗi nếu cần
+      });
+    console.log(newServiceeData);
   };
   return (
     <>
@@ -113,23 +170,39 @@ const Themdichvu: React.FC = () => {
                 <Row>
                   <Col span={12}>
                     <div>
-                      <label>Tên thiết bị</label>
-                      <Form.Item name="email">
-                        <Input className="input-chung" />
+                      <label>Mã dịch vụ</label>
+                      <Form.Item>
+                        <Input
+                          name="madv"
+                          className="input-chung"
+                          value={serviceData.madv}
+                          onChange={handleInputChange}
+                        />
                       </Form.Item>
                     </div>
 
                     <div style={{ marginTop: "30px" }}>
-                      <label>Địa chỉ IP</label>
-                      <Form.Item name="email">
-                        <Input className="input-chung" />
+                      <label>Tên dịch vụ</label>
+                      <Form.Item>
+                        <Input
+                          name="namedv"
+                          className="input-chung"
+                          value={serviceData.namedv}
+                          onChange={handleInputChange}
+                        />
                       </Form.Item>
                     </div>
                   </Col>
                   <Col span={12}>
                     <div>
                       <label htmlFor="description">Mô tả:</label>
-                      <Input.TextArea rows={6} id="description" />
+                      <Input.TextArea
+                        rows={6}
+                        id="description"
+                        name="dessdv"
+                        // value={serviceData.dessdv}
+                        onChange={handleInputAreaChange}
+                      />
                     </div>
                   </Col>
                 </Row>
@@ -235,7 +308,11 @@ const Themdichvu: React.FC = () => {
                 >
                   Hủy bỏ
                 </Button>
-                <Button style={{ margin: "5px" }} className="btn-thietbi">
+                <Button
+                  style={{ margin: "5px" }}
+                  className="btn-thietbi"
+                  onClick={handleAddService}
+                >
                   Thêm thiết bị
                 </Button>
               </Content>

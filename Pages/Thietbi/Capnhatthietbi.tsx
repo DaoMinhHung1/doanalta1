@@ -1,18 +1,28 @@
 import React, { useEffect, useState } from "react";
 
-import { Button, Card, Col, Form, Input, Layout, Menu, Row } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Layout,
+  Menu,
+  Row,
+  message,
+} from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
-import { useHistory, useLocation } from "react-router-dom";
-import { get, getDatabase, onValue, ref, set, update } from "firebase/database";
+import { useLocation } from "react-router-dom";
+import { getDatabase, onValue, ref, update } from "firebase/database";
 
 const Capnhatthietbi: React.FC = () => {
   const location = useLocation();
   const device = location.state?.device;
   const [updatedDevice, setUpdatedDevice] = useState(device);
-  const history = useHistory();
+
   const db = getDatabase();
 
   const handleMatbChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,8 +43,8 @@ const Capnhatthietbi: React.FC = () => {
   };
 
   useEffect(() => {
-    if (device && device.uuid) {
-      const deviceRef = ref(db, "devices/" + device.uuid);
+    if (device && device.uid) {
+      const deviceRef = ref(db, "devices/" + device.uid);
       console.log(deviceRef);
 
       onValue(deviceRef, (snapshot) => {
@@ -48,13 +58,13 @@ const Capnhatthietbi: React.FC = () => {
 
   const handleUpdateDevice = async () => {
     try {
-      if (!updatedDevice || !updatedDevice.uid) {
+      if (!updatedDevice || !updatedDevice.uuid) {
         console.error("UUID thiết bị không hợp lệ!");
         return;
       }
 
-      const deviceRef = ref(db, "devices/" + updatedDevice.uid);
-      console.log("ssssss", deviceRef);
+      const devicePath = "devices/" + updatedDevice.uuid;
+      const deviceRef = ref(db, devicePath);
 
       // Tạo một đối tượng chứa các trường dữ liệu cần cập nhật
       const updates = {
@@ -66,20 +76,19 @@ const Capnhatthietbi: React.FC = () => {
         matb: updatedDevice.matb,
       };
 
-      // Cập nhật dữ liệu của thiết bị trong cơ sở dữ liệu thời gian thực
+      // Cập nhật dữ liệu của thiết bị trong Realtime Database
       await update(deviceRef, updates);
+      message.success("Cập nhật thiết bị thành công!");
 
-      console.log("Cập nhật thiết bị thành công");
-
-      // Cập nhật UI hoặc chuyển hướng đến trang khác sau khi cập nhật thiết bị
+      // Cập nhật giao diện người dùng hoặc chuyển hướng đến trang khác sau khi cập nhật thiết bị
       // history.push("/thietbi");
     } catch (error) {
-      console.error("Lỗi khi cập nhật thiết bị:", error);
-      // Xử lý lỗi nếu cần
+      message.error("Cập nhật dịch vụ thất bại!");
+      // Xử lý lỗi nếu cần thiết
     }
   };
 
-  console.log("updatedDevice:", updatedDevice.uid);
+  console.log("updatedDevice:", updatedDevice.uuid);
 
   return (
     <>

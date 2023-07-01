@@ -1,12 +1,107 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { Button, Card, Col, Input, Layout, Menu, Row } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Layout,
+  Menu,
+  Modal,
+  Row,
+  Select,
+  message,
+} from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
+import { getDatabase, push, ref, set } from "firebase/database";
+
+interface OrderNumbers {
+  STT: string;
+  namekh: string;
+  namedv: string;
+  startdate: string;
+  enddate: string;
+  provide: string;
+  uuid: string;
+}
 
 const Capsomoi: React.FC = () => {
+  const [orderNumbers, setOrderNumbers] = useState<OrderNumbers>({
+    STT: "",
+    namekh: "",
+    namedv: "",
+    startdate: "",
+    enddate: "",
+    provide: "",
+    uuid: "",
+  });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderNumbers | null>(null);
+  const [currentNumber, setCurrentNumber] = useState(1);
+
+  const generateRandomNumber = (): string => {
+    const randomNumber = String(currentNumber).padStart(7, "0");
+    setCurrentNumber((prevNumber) => prevNumber + 1);
+    return randomNumber;
+  };
+
+  const handleSelectChange = (value: string) => {
+    setOrderNumbers((prevState) => ({
+      ...prevState,
+      namedv: value,
+    }));
+  };
+
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${day}-${month}-${year}`;
+  };
+
+  const handleAddNumber = () => {
+    const database = getDatabase();
+    const orderRef = ref(database, "ordernumbers");
+
+    const newOrderRef = push(orderRef);
+    const newOrderKey = newOrderRef.key;
+
+    // Tính toán ngày kết thúc
+    const currentDate = new Date();
+    const endDate = new Date(currentDate);
+    endDate.setDate(endDate.getDate() + 5);
+
+    const newOrderData = {
+      uuid: newOrderKey,
+      STT: generateRandomNumber(),
+      namekh: orderNumbers.namekh,
+      namedv: orderNumbers.namedv,
+      startdate: formatDate(currentDate),
+      enddate: formatDate(endDate),
+      provide: orderNumbers.provide,
+    };
+
+    set(newOrderRef, newOrderData)
+      .then(() => {
+        message.success("Thêm dịch vụ thành công!");
+        showModal(newOrderData);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi thêm dịch vụ:", error);
+      });
+  };
+
+  const showModal = (orderData) => {
+    setSelectedOrder(orderData);
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <>
       <Layout>
@@ -107,7 +202,24 @@ const Capsomoi: React.FC = () => {
                 <h1 style={{ textAlign: "center" }} className="chu">
                   Dịch vụ khách hàng lựa chọn
                 </h1>
-                <Input className="input-chung" />
+                <Select
+                  style={{ width: "450px" }}
+                  className="select-chung"
+                  onChange={handleSelectChange}
+                >
+                  <Select.Option value="Khám tim mạch">
+                    Khám tim mạch
+                  </Select.Option>
+                  <Select.Option value="Khám sản - Phụ khoa">
+                    Khám sản - Phụ khoa
+                  </Select.Option>
+                  <Select.Option value="Khám răng hàm mặt">
+                    Khám răng hàm mặt
+                  </Select.Option>
+                  <Select.Option value="Khám tai mũi họng">
+                    Khám tai mũi họng
+                  </Select.Option>
+                </Select>
                 <Content
                   style={{
                     display: "flex",
@@ -119,12 +231,29 @@ const Capsomoi: React.FC = () => {
                   <Button
                     style={{ marginLeft: "20px" }}
                     className="btn-thietbi"
+                    onClick={handleAddNumber}
                   >
-                    Thêm thiết bị
+                    Cấp số
                   </Button>
                 </Content>
               </Card>
             </Row>
+            <Modal
+              visible={isModalVisible}
+              onCancel={handleCancel}
+              footer={null}
+              maskClosable={false}
+            >
+              <h1>Số thứ tự được cấp</h1>
+              {selectedOrder && (
+                <>
+                  <p>STT: {selectedOrder.STT}</p>
+                  <p>Tên dịch vụ: {selectedOrder.namedv}</p>
+                  <p>Thời gian cấp: {selectedOrder.startdate}</p>
+                  <p>Hạn sử dụng: {selectedOrder.enddate}</p>
+                </>
+              )}
+            </Modal>
           </Content>
         </Layout>
       </Layout>

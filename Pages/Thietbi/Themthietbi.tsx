@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 
-import { Button, Card, Col, Form, Input, Layout, Menu, Row } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Layout,
+  Menu,
+  Row,
+  message,
+} from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
-
-import { addDoc, collection, getFirestore } from "firebase/firestore";
-import { v4 as uuid } from "uuid";
 import { DeviceData } from "./../../redux/reduxDevices";
 import { getDatabase, push, ref, set } from "firebase/database";
 
@@ -58,8 +65,11 @@ const Themthietbi: React.FC = () => {
     const newDeviceRef = push(devicesRef);
     const newDeviceKey = newDeviceRef.key;
 
+    // // Gán UUID cho dữ liệu thiết bị
+    // const deviceWithUUID = { ...deviceData, uuid: newUUID };
+
     const newDeviceData = {
-      uid: newDeviceKey,
+      uuid: newDeviceKey,
       matb: deviceData.matb,
       nametb: deviceData.nametb,
       addresstb: deviceData.addresstb,
@@ -71,7 +81,7 @@ const Themthietbi: React.FC = () => {
     set(newDeviceRef, newDeviceData)
       .then(() => {
         console.log("Thêm thiết bị thành công");
-        // Cập nhật UI hoặc chuyển hướng đến trang khác sau khi thêm thiết bị
+        message.success("Thêm thiết bị thành công!");
       })
       .catch((error) => {
         console.error("Lỗi khi thêm thiết bị:", error);

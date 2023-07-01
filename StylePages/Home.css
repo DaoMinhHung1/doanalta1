@@ -10,6 +10,20 @@
     margin-bottom: 20px;
 }
 
+.chu {
+    color: var(--gray-gray-500, #282739);
+    /* 16/16 Semi */
+    font-size: 16px;
+    font-family: Nunito;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.marginchu {
+    margin-top: 20px;
+}
+
 .menubar {
     width: 400px;
     height: 100vh;
@@ -123,8 +137,6 @@
 
 .card-1 {
     width: 1112px;
-    padding: 40px 24px 54px 24px;
-
     align-items: flex-start;
     gap: 24px;
     border-radius: 12px;
@@ -293,6 +305,45 @@
     /* down */
     box-shadow: 0px 0px 6px 0px #E7E9F2;
 }
+
+.input-chung {
+    display: flex;
+    width: 450px;
+    height: 44px;
+    padding: 10px 270px 10px 12px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--gray-gray-100, #D4D4D7);
+    background: var(--white, #FFF);
+}
+
+.input-chungdai {
+    display: flex;
+    width: 985px;
+    height: 44px;
+    padding: 10px 270px 10px 12px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--gray-gray-100, #D4D4D7);
+    background: var(--white, #FFF);
+}
+
+.input-checkbox {
+    display: flex;
+    width: 61px;
+    height: 44px;
+    padding: 10px 270px 10px 12px;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1.5px solid var(--gray-gray-100, #D4D4D7);
+    background: var(--white, #FFF);
+}
+
+
 
 *h6 {
     color: var(--gray-gray-400-text, #535261);

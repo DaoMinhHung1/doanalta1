@@ -7,8 +7,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 
 import { collection, addDoc } from "firebase/firestore";
 import { auth, firestore } from "../Firebase/Firebase";
-import { useDispatch } from "react-redux";
-import { saveUserData } from "../redux/userAction";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +15,6 @@ const Login: React.FC = () => {
   const [inputError, setInputError] = useState(false);
 
   const history = useHistory();
-  const dispatch = useDispatch();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -42,8 +39,8 @@ const Login: React.FC = () => {
       console.log("User added with ID: ", docRef.id);
 
       // Save user information to Redux
-      dispatch(saveUserData(user));
-      console.log("User data stored in Redux:", user);
+      // dispatch(saveUserData(user));
+      // console.log("User data stored in Redux:", user);
 
       // Save user information to localStorage
       localStorage.setItem("userData", JSON.stringify(user));

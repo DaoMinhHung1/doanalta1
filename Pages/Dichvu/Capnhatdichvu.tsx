@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Button,
@@ -10,18 +10,90 @@ import {
   Layout,
   Menu,
   Row,
+  message,
 } from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
+import { getDatabase, onValue, ref, update } from "firebase/database";
+import { useLocation } from "react-router-dom";
 
 const Capnhatdichvu: React.FC = () => {
   const [checked, setChecked] = useState<number | null>(null);
-
   const handleCheckboxChange = (index: number) => {
     setChecked(index);
   };
+
+  const location = useLocation();
+  const service = location.state?.service;
+  const [updatedService, setUpdatedService] = useState(service);
+  console.log(updatedService);
+
+  const db = getDatabase();
+
+  const handleMadvChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setUpdatedService((prevState) => ({ ...prevState, madv: value }));
+  };
+
+  const handleNamedvChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setUpdatedService((prevState) => ({ ...prevState, namedv: value }));
+  };
+
+  const handleDessdvChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const { value } = event.target;
+    setUpdatedService((prevState) => ({ ...prevState, dessdv: value }));
+  };
+
+  useEffect(() => {
+    if (service && service.id) {
+      const serviceRef = ref(db, "services/" + service.id);
+      console.log(serviceRef);
+
+      onValue(serviceRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setUpdatedService((prevState) => ({ ...prevState, ...data }));
+        }
+      });
+    }
+  }, [db, service]);
+
+  const handleUpdateService = async () => {
+    try {
+      if (!updatedService || !updatedService.id) {
+        console.error("UUID thiết bị không hợp lệ!");
+        return;
+      }
+
+      const servicePath = "services/" + updatedService.id;
+      const serviceRef = ref(db, servicePath);
+
+      // Tạo một đối tượng chứa các trường dữ liệu cần cập nhật
+      const updates = {
+        madv: updatedService.madv,
+        namedv: updatedService.namedv,
+        dessdv: updatedService.dessdv,
+      };
+
+      // Cập nhật dữ liệu của thiết bị trong Realtime Database
+      await update(serviceRef, updates);
+      message.success("Cập nhật dịch vụ thành công!");
+
+      // Cập nhật giao diện người dùng hoặc chuyển hướng đến trang khác sau khi cập nhật thiết bị
+      // history.push("/thietbi");
+    } catch (error) {
+      console.error("Lỗi khi cập nhật thiết bị:", error);
+      message.error("Cập nhật dịch vụ thất bại!");
+      // Xử lý lỗi nếu cần thiết
+    }
+    console.log(service);
+  };
+
   return (
     <>
       <Layout>
@@ -112,23 +184,39 @@ const Capnhatdichvu: React.FC = () => {
                 <Row>
                   <Col span={12}>
                     <div>
-                      <label>Tên thiết bị</label>
-                      <Form.Item name="email">
-                        <Input className="input-chung" />
+                      <label>Mã dịch vụ</label>
+                      <Form.Item>
+                        <Input
+                          name="madv"
+                          className="input-chung"
+                          defaultValue={service?.madv}
+                          onChange={handleMadvChange}
+                        />
                       </Form.Item>
                     </div>
 
                     <div style={{ marginTop: "30px" }}>
-                      <label>Địa chỉ IP</label>
-                      <Form.Item name="email">
-                        <Input className="input-chung" />
+                      <label>Tên dịch vụ</label>
+                      <Form.Item>
+                        <Input
+                          name="namedv"
+                          className="input-chung"
+                          defaultValue={service?.namedv}
+                          onChange={handleNamedvChange}
+                        />
                       </Form.Item>
                     </div>
                   </Col>
                   <Col span={12}>
                     <div>
                       <label htmlFor="description">Mô tả:</label>
-                      <Input.TextArea rows={6} id="description" />
+                      <Input.TextArea
+                        rows={6}
+                        id="description"
+                        name="dessdv"
+                        defaultValue={service?.dessdv}
+                        onChange={handleDessdvChange}
+                      />
                     </div>
                   </Col>
                 </Row>
@@ -234,8 +322,12 @@ const Capnhatdichvu: React.FC = () => {
                 >
                   Hủy bỏ
                 </Button>
-                <Button style={{ margin: "5px" }} className="btn-thietbi">
-                  Thêm thiết bị
+                <Button
+                  style={{ margin: "5px" }}
+                  className="btn-thietbi"
+                  onClick={handleUpdateService}
+                >
+                  Cập nhật
                 </Button>
               </Content>
             </Row>

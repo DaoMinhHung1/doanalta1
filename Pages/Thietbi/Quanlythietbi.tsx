@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Button, Col, Form, Input, Layout, Menu, Row, Table } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { HomeOutlined, BellOutlined } from "@ant-design/icons";
@@ -24,7 +24,7 @@ const Quanlythietbi: React.FC = () => {
 
   const dispatch: ThunkDispatch<RootState, null, AnyAction> = useDispatch();
   const history = useHistory();
-  const [selectedDevice, setSelectedDevice] = useState<DeviceData | null>(null);
+  // const [selectedDevice, setSelectedDevice] = useState<DeviceData | null>(null);
 
   // Lấy dữ liệu thiết bị từ Redux store
   const { data: deviceData } = useSelector((state: RootState) => state.devices);
@@ -52,7 +52,7 @@ const Quanlythietbi: React.FC = () => {
     );
     if (selectedDevice) {
       console.log("Selected device:", selectedDevice);
-      setSelectedDevice(selectedDevice);
+      // setSelectedDevice(selectedDevice);
       history.push(`/capnhattb/${deviceID}`, { device: selectedDevice });
     } else {
       console.log("Không có dữ liệu thiết bị");
@@ -244,6 +244,10 @@ const Quanlythietbi: React.FC = () => {
                     <Table<DeviceData>
                       columns={columns}
                       dataSource={deviceData}
+                      pagination={{
+                        pageSize: 5,
+                        pageSizeOptions: ["5", "10", "15"],
+                      }}
                     />
                   </div>
                 </Col>

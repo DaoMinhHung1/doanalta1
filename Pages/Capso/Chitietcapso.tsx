@@ -1,18 +1,16 @@
 import React from "react";
 
 import { Card, Col, Layout, Menu, Row } from "antd";
-import { BellOutlined } from "@ant-design/icons";
-import { Header, Content } from "antd/lib/layout/layout";
 import Sider from "antd/es/layout/Sider";
+import { BellOutlined } from "@ant-design/icons";
+import { Content, Header } from "antd/es/layout/layout";
 import { useLocation } from "react-router-dom";
 
-const Chitietthietbi: React.FC = () => {
+const Thongtincapso: React.FC = () => {
   const location = useLocation();
-  const device = location.state?.device;
+  const orders = location.state?.orders;
 
-  // Sử dụng dữ liệu thiết bị trong trang Chitiettb
-  console.log("Device:", device.uid);
-
+  console.log(orders);
   return (
     <>
       <Layout>
@@ -106,61 +104,84 @@ const Chitietthietbi: React.FC = () => {
                   <Col span={4}>
                     <div>
                       <label className="chu" htmlFor="">
-                        Mã thiết bị
+                        Họ tên
                       </label>
                     </div>
                     <div>
                       <label className="chu marginchu" htmlFor="">
-                        Tên thiết bị
+                        Tên dịch vụ
                       </label>
                     </div>
                     <div>
                       <label className="chu marginchu" htmlFor="">
-                        Địa chỉ IP
+                        Số thứ tự
+                      </label>
+                    </div>
+                    <div>
+                      <label className="chu marginchu" htmlFor="">
+                        Thời gian cấp
+                      </label>
+                    </div>
+                    <div>
+                      <label className="chu marginchu" htmlFor="">
+                        Hạn sử dụng
                       </label>
                     </div>
                   </Col>
                   <Col span={8}>
                     <div>
-                      <label className="chu" htmlFor="">
-                        <span>{device.matb}</span>
+                      <label className="chu" htmlFor=""></label>
+                    </div>
+                    <div>
+                      <label className="chu marginchu" htmlFor="">
+                        <span>{orders?.namedv}</span>
                       </label>
                     </div>
                     <div>
                       <label className="chu marginchu" htmlFor="">
-                        <span>{device.nametb}</span>
+                        <span>{orders?.STT}</span>
                       </label>
                     </div>
                     <div>
                       <label className="chu marginchu" htmlFor="">
-                        <span>{device.addresstb}</span>
+                        <span>{orders?.startdate}</span>
+                      </label>
+                    </div>
+                    <div>
+                      <label className="chu marginchu" htmlFor="">
+                        <span>{orders?.enddate}</span>
                       </label>
                     </div>
                   </Col>
-                  <Col span={12}>
+                  <Col span={6}>
                     <div>
-                      <label className="chu " htmlFor="">
-                        Loại thiết bị
+                      <label className="chu marginchu " htmlFor="">
+                        Nguồn cấp
+                      </label>
+                      <span>{orders?.provide}</span>
+                    </div>
+                    <div>
+                      <label className="chu marginchu " htmlFor="">
+                        Trạng thái
                       </label>
                     </div>
                     <div>
-                      <label className="chu marginchu" htmlFor="">
-                        Tên đăng nhập
+                      <label className="chu marginchu " htmlFor="">
+                        Số điện thoại
                       </label>
                     </div>
                     <div>
-                      <label className="chu marginchu" htmlFor="">
-                        Mật khẩu
+                      <label className="chu marginchu " htmlFor="">
+                        Địa chỉ email
                       </label>
                     </div>
                   </Col>
-                </Row>
-                <Row style={{ marginTop: "50px" }}>
-                  <Col span={24}>
-                    <label className="chu " htmlFor="">
-                      Dịch vụ sử dụng
-                    </label>
-                    <p>Khám tim mạch</p>
+                  <Col span={6}>
+                    <div>
+                      <label className="chu marginchu " htmlFor="">
+                        <span>{orders?.provide}</span>
+                      </label>
+                    </div>
                   </Col>
                 </Row>
               </Card>
@@ -180,4 +201,4 @@ const Chitietthietbi: React.FC = () => {
   );
 };
 
-export default Chitietthietbi;
+export default Thongtincapso;

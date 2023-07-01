@@ -1,88 +1,127 @@
 import React, { useEffect, useState } from "react";
 
-import { Col, Form, Input, Layout, Menu, Row, Table } from "antd";
+import { Button, Col, Form, Input, Layout, Menu, Row, Table } from "antd";
 
 import Sider from "antd/es/layout/Sider";
 import { HomeOutlined, BellOutlined } from "@ant-design/icons";
 import { Content, Header } from "antd/es/layout/layout";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getDatabase, onValue, ref } from "firebase/database";
+import { useHistory } from "react-router-dom";
 
-// Table
-const columns = [
-  {
-    title: "Mã thiết bị",
-    dataIndex: "madv",
-    key: "madv",
-    width: 150,
-  },
-  {
-    title: "Tên thiết bị",
-    dataIndex: "namedv",
-    key: "namedv",
-    width: 200,
-  },
-  {
-    title: "Địa chỉ Ip",
-    dataIndex: "motadv",
-    key: "motadv",
-    width: 200,
-  },
-  {
-    title: "Trạng thái hoạt động",
-    dataIndex: "hoatdongdv",
-    key: "hoatdongdv",
-    width: 200,
-  },
-
-  {
-    title: "",
-    dataIndex: "chitietdv",
-    key: "chitietdv",
-    width: 200,
-  },
-  {
-    title: "",
-    dataIndex: "capnhatdv",
-    key: "capnhatdv",
-    width: 200,
-  },
-];
+interface ServiceData {
+  madv: string;
+  namedv: string;
+  motadv: number;
+  hoatdongdv: string;
+  uuid: string;
+}
 
 const Quanlydichvu: React.FC = () => {
-  interface ServiceData {
-    madv: string;
-    namedv: string;
-    motadv: number;
-    hoatdongdv: string;
-    chitietdv: string;
-    capnhatdv: string;
-  }
+  const history = useHistory();
+  // const [selectedService, setSelectedService] = useState<ServiceData | null>(
+  //   null
+  // );
 
-  const [serviceData, setSeviceData] = useState<ServiceData[]>([]);
+  //nút nhấn chi tiết lưu qua URL
+  const handleViewDetails = (serviceID: string) => {
+    const selectedService = serviceData.find(
+      (service) => service.uuid === serviceID
+    );
+    if (selectedService) {
+      console.log("Selected service:", selectedService);
+      history.push(`/chitietdv/${serviceID}`, { service: selectedService });
+    } else {
+      console.log("Không có dữ liệu dịch vụ");
+    }
+  };
+  const handleUpdate = (serviceID: string) => {
+    const selectedService = serviceData.find(
+      (service) => service.uuid === serviceID
+    );
+    if (selectedService) {
+      console.log("Selected device:", selectedService);
+      // setSelectedService(selectedService);
+      history.push(`/capnhatdv/${serviceID}`, { service: selectedService });
+    } else {
+      console.log("Không có dữ liệu thiết bị");
+    }
+  };
+  // Table
+  const columns = [
+    {
+      title: "Mã dịch vụ",
+      dataIndex: "madv",
+      key: "madv",
+      width: 150,
+    },
+    {
+      title: "Tên dịch vụ",
+      dataIndex: "namedv",
+      key: "namedv",
+      width: 200,
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "dessdv",
+      key: "dessdv",
+      width: 200,
+    },
+    {
+      title: "Trạng thái hoạt động",
+      dataIndex: "hoatdongdv",
+      key: "hoatdongdv",
+      width: 200,
+    },
 
+    {
+      title: "",
+      dataIndex: "viewAction",
+      key: "viewAction",
+      width: 150,
+      render: (_text, record) => (
+        <>
+          <Button onClick={() => handleViewDetails(record.uuid)}>
+            Chi tiết
+          </Button>
+        </>
+      ),
+    },
+    {
+      title: "",
+      dataIndex: "updateAction",
+      key: "updateAction",
+      width: 150,
+      render: (_text, record) => (
+        <>
+          <Button onClick={() => handleUpdate(record.uuid)}>Cập nhật</Button>
+        </>
+      ),
+    },
+  ];
+
+  //load dữ liệu từ data xuống
+  const [serviceData, setServiceData] = useState<ServiceData[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const db = getFirestore();
-        const devicesCollection = collection(db, "services");
-        const snapshot = await getDocs(devicesCollection);
+        const db = getDatabase();
+        const servicesRef = ref(db, "services");
 
-        const data: ServiceData[] = [];
-
-        snapshot.forEach((doc) => {
-          const device = doc.data() as ServiceData;
-          data.push(device);
+        onValue(servicesRef, (snapshot) => {
+          const data: ServiceData[] = [];
+          snapshot.forEach((childSnapshot) => {
+            const device = childSnapshot.val() as ServiceData;
+            data.push(device);
+          });
+          setServiceData(data);
         });
-
-        setSeviceData(data);
       } catch (error) {
-        console.error("Error fetching device data:", error);
+        console.error("Error fetching service data:", error);
       }
     };
 
     fetchData();
   }, []);
-
   return (
     <>
       <Layout>
@@ -202,7 +241,14 @@ const Quanlydichvu: React.FC = () => {
                 <Col span={22}>
                   <div>
                     <div style={{ marginBottom: 16 }}></div>
-                    <Table columns={columns} dataSource={serviceData} />
+                    <Table
+                      columns={columns}
+                      dataSource={serviceData}
+                      pagination={{
+                        pageSize: 5,
+                        pageSizeOptions: ["5", "10", "15"],
+                      }}
+                    />
                   </div>
                 </Col>
                 <Col
@@ -212,7 +258,7 @@ const Quanlydichvu: React.FC = () => {
                 >
                   <HomeOutlined
                     onClick={() => {
-                      window.location.href = "/themtb";
+                      window.location.href = "/themdv";
                     }}
                   />
                 </Col>
